@@ -39,9 +39,16 @@ export default {
             status: 200
           });
         }
-
+        
         const body = JSON.parse(bodyText);
-
+        
+        if (body.method === "notifications/initialized" || body.method?.startsWith("notifications/")) {
+          return new Response(
+            JSON.stringify({ jsonrpc: "2.0", id: body.id ?? null, result: {} }),
+            { headers, status: 200 }
+          );
+        }
+        
         if (body.method === "initialize" || !body.method) {
           return new Response(
             JSON.stringify({
@@ -124,12 +131,7 @@ export default {
           );
         }
       }
-      if (body.method === "notifications/initialized" || body.method?.startsWith("notifications/")) {
-        return new Response(
-          JSON.stringify({ jsonrpc: "2.0", id: body.id ?? null, result: {} }),
-          { headers, status: 200 }
-        );
-      }
+
       return new Response(JSON.stringify({ error: "Method Not Allowed" }), { headers, status: 405 });
 
     } catch (error: any) {
